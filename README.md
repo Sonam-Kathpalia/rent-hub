@@ -34,17 +34,19 @@ ng test
 ## Test Credentials 
 
 To run application , use the below login credentials or SignUp :
+
+```
 Regular User Account:
 Email: test@example.com
 Password: test123
-Role: user
-Full Name: Test User
-Phone: 123-456-7890
+
+```
+
+```
 Landlord Account:
 Email: landlord@example.com
 Password: landlord123
-Role: landlord
-Full Name: Landlord User
-Phone: 987-654-3210
+
+```
 
 
