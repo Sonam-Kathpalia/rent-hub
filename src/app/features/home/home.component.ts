@@ -21,6 +21,7 @@ import { AuthService } from '../../core/services/auth.service';
         </div>
         <div class="featured-card" *ngIf="featuredListings.length">
           <h3>Featured Listings</h3>
+          <div class="listing-title">{{ featuredListings[featuredIndex].title }}</div>
           <div class="listing-address">{{ featuredListings[featuredIndex].address }}</div>
           <p>{{ featuredListings[featuredIndex].description }}</p>
           <div class="featured-actions">
@@ -131,6 +132,12 @@ import { AuthService } from '../../core/services/auth.service';
       margin: 0 0 12px 0;
       font-size: 1.2rem;
       font-weight: bold;
+    }
+    .listing-title {
+      font-size: 1.1rem;
+      font-weight: bold;
+      color: #333;
+      margin-bottom: 8px;
     }
     .featured-card p {
       font-size: 0.98rem;
