@@ -31,6 +31,8 @@ To execute unit tests with the [Karma](https://karma-runner.github.io) test runn
 ng test
 ```
 
+## Test Credentials 
+
 To run application , use the below login credentials or SignUp :
 Regular User Account:
 Email: test@example.com
