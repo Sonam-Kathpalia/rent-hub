@@ -316,7 +316,7 @@ export class CreateListingComponent implements OnInit {
         apartmentType: this.listingForm.value.apartmentType,
         numberOfBeds: this.listingForm.value.numberOfBeds,
         address: this.listingForm.value.streetAddress,
-        expectedRent: this.listingForm.value.expectedRent,
+        price: this.listingForm.value.expectedRent,
         description: this.listingForm.value.description,
         amenities,
         photos: this.photos.map(p => p.data),
