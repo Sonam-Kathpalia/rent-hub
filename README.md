@@ -49,4 +49,10 @@ Password: landlord123
 
 ```
 
+## Bonus Points
+
+```
+Implemented Preview and Submit feature. Functionality works as of now for the same user session only. If we refreshes / restarts , it do not retain the data as we are using in memory webapi and not actual db for this application.
+```
+
 
