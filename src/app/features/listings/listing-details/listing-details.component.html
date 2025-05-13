@@ -1,0 +1,44 @@
+<div class="listing-details-wrapper" *ngIf="listing">
+  <div class="info-grid">
+    <div class="info-box">
+      <div class="label">Title</div>
+      <div>{{ listing.title }}</div>
+    </div>
+    <div class="info-box">
+      <div class="label">Property Type</div>
+      <div>{{ listing.apartmentType }}</div>
+    </div>
+    <div class="info-box">
+      <div class="label">Number of Beds</div>
+      <div>2</div>
+    </div>
+    <div class="info-box">
+      <div class="label">Address</div>
+      <div>{{ listing.address }}</div>
+    </div>
+    <div class="info-box">
+      <div class="label">Rent</div>
+      <div>
+        INR {{ listing.price | number:'1.0-0' }}/month
+      </div>
+    </div>
+    <div class="info-box desc-box">
+      <div class="label">Description</div>
+      <div>{{ listing.description }}</div>
+    </div>
+    <div class="info-box amenities-box">
+      <div class="label">Amenities</div>
+      <ul>
+        <li *ngFor="let amenity of listing.amenities">{{ amenity }}</li>
+      </ul>
+    </div>
+  </div>
+  <div class="photos-section">
+    <div class="label">Photos</div>
+    <div class="photos-row">
+      <div class="photo-box" *ngFor="let photo of (listing.photos && listing.photos.length ? listing.photos : [listing.imageUrl])">
+        <img [src]="photo" alt="Photo" />
+      </div>
+    </div>
+  </div>
+</div> 

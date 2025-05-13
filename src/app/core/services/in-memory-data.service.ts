@@ -31,82 +31,72 @@ export class InMemoryDataService implements InMemoryDbService {
   ];
 
   createDb() {
-    let listings: Listing[];
-    const local = localStorage.getItem('dev-listings');
-    if (local) {
-      listings = JSON.parse(local).map((l: any) => ({
-        ...l,
-        createdAt: new Date(l.createdAt),
-        updatedAt: new Date(l.updatedAt)
-      }));
-    } else {
-      listings = [
-        {
-          id: '1',
-          title: 'Luxury Penthouse with View',
-          address: '123 Skyline Ave, Uptown, Metropolis, NY',
-          description: 'Stunning views of the city from this luxury penthouse',
-          price: 100000,
-          location: 'Uptown',
-          imageUrl: 'assets/images/listing-1-front.jpg',
-          photos: [
-            'assets/images/listing-1-front.jpg',
-            'assets/images/listing-1-kitchen.jpg',
-            'assets/images/listing-1-bathroom.jpg',
-            'assets/images/listing-1-living.jpg'
-          ],
-          amenities: ['Parking', 'Gym', 'Pool'],
-          ownerId: '1',
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          comments: [],
-          apartmentType: 'Penthouse'
-        },
-        {
-          id: '2',
-          title: 'Modern Downtown Apartment',
-          address: '456 Central Blvd, Downtown, Metropolis, NY',
-          description: 'Beautiful modern apartment in the heart of downtown',
-          price: 85000,
-          location: 'Downtown',
-          imageUrl: 'assets/images/listing-2-front.jpg',
-          photos: [
-            'assets/images/listing-2-front.jpg',
-            'assets/images/listing-2-kitchen.jpg',
-            'assets/images/listing-2-bathroom.jpg',
-            'assets/images/listing-2-living.jpg'
-          ],
-          amenities: ['Doorman', 'Rooftop Pool', 'Concierge'],
-          ownerId: '2',
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          comments: [],
-          apartmentType: 'Apartment'
-        },
-        {
-          id: '3',
-          title: 'Cozy Studio Near University',
-          address: '789 College Rd, University District, Metropolis, NY',
-          description: 'Perfect for students, close to campus',
-          price: 60000,
-          location: 'University District',
-          imageUrl: 'assets/images/listing-3-front.jpg',
-          photos: [
-            'assets/images/listing-3-front.jpg',
-            'assets/images/listing-3-kitchen.jpg',
-            'assets/images/listing-3-bathroom.jpg',
-            'assets/images/listing-3-living.jpg'
-          ],
-          amenities: ['WiFi', 'Laundry', 'Study Room'],
-          ownerId: '3',
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          comments: [],
-          apartmentType: 'Studio'
-        }
-      ];
-      localStorage.setItem('dev-listings', JSON.stringify(listings));
-    }
+    const listings: Listing[] = [
+      {
+        id: '1',
+        title: 'Luxury Penthouse with View',
+        address: '123 Skyline Ave, Uptown, Metropolis, NY',
+        description: 'Stunning views of the city from this luxury penthouse',
+        price: 100000,
+        location: 'Uptown',
+        imageUrl: 'assets/images/listing-1-front.jpg',
+        photos: [
+          'assets/images/listing-1-front.jpg',
+          'assets/images/listing-1-kitchen.jpg',
+          'assets/images/listing-1-bathroom.jpg',
+          'assets/images/listing-1-living.jpg'
+        ],
+        amenities: ['Parking', 'Gym', 'Pool'],
+        ownerId: '1',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        comments: [],
+        apartmentType: 'Penthouse'
+      },
+      {
+        id: '2',
+        title: 'Modern Downtown Apartment',
+        address: '456 Central Blvd, Downtown, Metropolis, NY',
+        description: 'Beautiful modern apartment in the heart of downtown',
+        price: 85000,
+        location: 'Downtown',
+        imageUrl: 'assets/images/listing-2-front.jpg',
+        photos: [
+          'assets/images/listing-2-front.jpg',
+          'assets/images/listing-2-kitchen.jpg',
+          'assets/images/listing-2-bathroom.jpg',
+          'assets/images/listing-2-living.jpg'
+        ],
+        amenities: ['Doorman', 'Rooftop Pool', 'Concierge'],
+        ownerId: '2',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        comments: [],
+        apartmentType: 'Apartment'
+      },
+      {
+        id: '3',
+        title: 'Cozy Studio Near University',
+        address: '789 College Rd, University District, Metropolis, NY',
+        description: 'Perfect for students, close to campus',
+        price: 60000,
+        location: 'University District',
+        imageUrl: 'assets/images/listing-3-front.jpg',
+        photos: [
+          'assets/images/listing-3-front.jpg',
+          'assets/images/listing-3-kitchen.jpg',
+          'assets/images/listing-3-bathroom.jpg',
+          'assets/images/listing-3-living.jpg'
+        ],
+        amenities: ['WiFi', 'Laundry', 'Study Room'],
+        ownerId: '3',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        comments: [],
+        apartmentType: 'Studio'
+      }
+    ];
+
     return { listings, users: this.users, auth: [] };
   }
 
@@ -140,18 +130,48 @@ export class InMemoryDataService implements InMemoryDbService {
         }));
       } else if (reqInfo.url.endsWith('/login')) {
         // Handle login
-        const user = this.users.find(u => u.email === body.email && u.password === body.password);
-        if (user) {
+        const user = this.users.find(u => u.email === body.email);
+        if (!user) {
           return of(new HttpResponse({
-            status: 200,
-            body: { ...user }
+            status: 401,
+            body: { error: 'Invalid email or password' }
           }));
         }
+        
+        if (user.password !== body.password) {
+          return of(new HttpResponse({
+            status: 401,
+            body: { error: 'Invalid email or password' }
+          }));
+        }
+
+        // Create a copy of the user without the password
+        const { password, ...userWithoutPassword } = user;
         return of(new HttpResponse({
-          status: 401,
-          body: { error: 'Invalid credentials' }
+          status: 200,
+          body: userWithoutPassword
         }));
       }
+    }
+
+    // Handle new listing creation
+    if (collectionName === 'listings' && reqInfo.req.url.endsWith('/listings')) {
+      const listings = reqInfo.collection as Listing[];
+      const newListing: Listing = {
+        ...body,
+        id: (listings.length + 1).toString(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        // Keep all photos
+        photos: body.photos || [],
+        imageUrl: body.photos && body.photos.length > 0 ? body.photos[0] : '',
+        comments: []
+      };
+      listings.push(newListing);
+      return of(new HttpResponse({
+        status: 201,
+        body: newListing
+      }));
     }
 
     // Handle favorite toggle
@@ -196,16 +216,36 @@ export class InMemoryDataService implements InMemoryDbService {
     return undefined;
   }
 
-  // After any POST/PUT/DELETE to listings, update localStorage
-  // Patch: persist listings to localStorage on POST/PUT/DELETE
-  // This is a dev hack for HMR persistence
-  responseInterceptor(response: any, requestInfo: RequestInfo) {
-    if (requestInfo.collectionName === 'listings' && ['POST', 'PUT', 'DELETE'].includes((requestInfo.req as any).method)) {
-      const db: any = requestInfo.utils.getDb();
-      const listings = db && db['listings'] ? db['listings'] : [];
-      const safeListings = listings.map((l: any) => ({ ...l, photos: [] }));
-      localStorage.setItem('dev-listings', JSON.stringify(safeListings));
+  // Override put method to handle listing updates
+  put(reqInfo: RequestInfo): Observable<any> | undefined {
+    const collectionName = reqInfo.collectionName;
+    const body = reqInfo.utils.getJsonBody(reqInfo.req);
+
+    if (collectionName === 'listings') {
+      const listings = reqInfo.collection as Listing[];
+      const listing = listings.find(l => l.id === body.id);
+      if (listing) {
+        const updatedListing = {
+          ...body,
+          updatedAt: new Date(),
+          // Keep existing photos if no new ones are provided
+          photos: body.photos || listing.photos,
+          // Update imageUrl to first photo if available
+          imageUrl: body.photos && body.photos.length > 0 ? body.photos[0] : listing.imageUrl
+        };
+        Object.assign(listing, updatedListing);
+        return of(new HttpResponse({
+          status: 200,
+          body: listing
+        }));
+      }
     }
+    return undefined;
+  }
+
+  // Remove the localStorage persistence
+  responseInterceptor(response: any, requestInfo: RequestInfo) {
+    // Just return the response without persisting to localStorage
     return response;
   }
 } 

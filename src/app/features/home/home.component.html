@@ -1,0 +1,66 @@
+<div class="home-wrapper">
+  <div class="top-section">
+    <div class="carousel-container">
+      <div class="carousel">
+        <button class="carousel-arrow left" (click)="prevFeatured()">&#60;</button>
+        <img *ngIf="featuredListings.length && getDisplayImage(featuredListings[featuredIndex])" 
+             [src]="getDisplayImage(featuredListings[featuredIndex])" 
+             alt="Featured" 
+             class="carousel-image" />
+        <div *ngIf="featuredListings.length && !getDisplayImage(featuredListings[featuredIndex])" 
+             class="carousel-image placeholder">
+          No Image Available
+        </div>
+        <button class="carousel-arrow right" (click)="nextFeatured()">&#62;</button>
+      </div>
+    </div>
+    <div class="featured-card" *ngIf="featuredListings.length">
+      <h3>Featured Listings</h3>
+      <div class="listing-title">{{ featuredListings[featuredIndex].title }}</div>
+      <div class="listing-address">{{ featuredListings[featuredIndex].address }}</div>
+      <p class="price">INR {{ featuredListings[featuredIndex].price | number:'1.0-0' }}/month</p>
+      <p>{{ featuredListings[featuredIndex].description }}</p>
+      <div class="featured-actions">
+        <button class="btn-outline" (click)="onViewFeaturedDetails()">View Details</button>
+        <button class="btn-outline" (click)="onComment(featuredListings[featuredIndex])">Comment</button>
+        <button class="btn-outline favorite-btn" [ngClass]="{ 'favorited': isListingFavorited(featuredListings[featuredIndex].id) }" (click)="onToggleFavorite(featuredListings[featuredIndex], $event)"
+          [attr.title]="isListingFavorited(featuredListings[featuredIndex].id) ? 'Unmark it as Favorite' : 'Mark it as favorite'">
+          <span [ngStyle]="{ color: isListingFavorited(featuredListings[featuredIndex].id) ? 'red' : '#888', 'font-size': '1.4em' }">
+            {{ isListingFavorited(featuredListings[featuredIndex].id) ? '♥' : '♡' }}
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <h2 class="all-listings-title">All Listings</h2>
+  <div class="listings-grid">
+    <div *ngFor="let listing of listings" class="listing-card">
+      <div class="image-container">
+        <img *ngIf="getDisplayImage(listing)" 
+             [src]="getDisplayImage(listing)" 
+             [alt]="listing.title" 
+             class="listing-image" />
+        <div *ngIf="!getDisplayImage(listing)" class="listing-image placeholder">
+          No Image Available
+        </div>
+      </div>
+      <div class="listing-content">
+        <h3>{{ listing.title }}</h3>
+        <div class="listing-address">{{ listing.address }}</div>
+        <p class="price">INR {{ listing.price | number:'1.0-0' }}/month</p>
+        <p>{{ listing.description }}</p>
+        <div class="listing-actions">
+          <button class="btn-outline" [routerLink]="['/listings', listing.id]">View Details</button>
+          <button class="btn-outline" (click)="onComment(listing)">Comment</button>
+          <button class="btn-outline favorite-btn" [ngClass]="{ 'favorited': isListingFavorited(listing.id) }" (click)="onToggleFavorite(listing, $event)"
+            [attr.title]="isListingFavorited(listing.id) ? 'Unmark it as Favorite' : 'Mark it as favorite'">
+            <span [ngStyle]="{ color: isListingFavorited(listing.id) ? 'red' : '#888', 'font-size': '1.4em' }">
+              {{ isListingFavorited(listing.id) ? '♥' : '♡' }}
+            </span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 

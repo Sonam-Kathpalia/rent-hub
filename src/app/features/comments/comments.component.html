@@ -1,0 +1,17 @@
+<div class="comments-wrapper">
+  <h2>Comments</h2>
+  <div *ngIf="comments.length === 0">No comments yet.</div>
+  <div *ngFor="let comment of comments" class="comment-box">
+    <div class="comment-header"><b>{{ comment.userName }} ({{ comment.userRole }})</b></div>
+    <div class="comment-body">{{ comment.text }}</div>
+    <div class="comment-date">{{ comment.createdAt | date:'short' }}</div>
+  </div>
+  <div *ngIf="isLoggedIn" class="add-comment-section">
+    <label for="commentText">Leave a Comment</label>
+    <textarea id="commentText" [(ngModel)]="newCommentText" rows="3" class="comment-input"></textarea>
+    <button (click)="addComment()" class="submit-btn" [disabled]="!isLoggedIn">Submit</button>
+  </div>
+  <div *ngIf="!isLoggedIn" class="login-warning">
+    Please login to post a comment.
+  </div>
+</div> 

@@ -29,6 +29,12 @@ export class AuthService {
   login(email: string, password: string): Observable<User> {
     return this.http.post<User>(`${this.apiUrl}/auth/login`, { email, password })
       .pipe(
+        map(response => {
+          if (!response || !response.id) {
+            throw new Error('Invalid login credentials');
+          }
+          return response;
+        }),
         tap(user => {
           console.log('User to store:', user);
           localStorage.setItem('currentUser', JSON.stringify(user));
@@ -76,7 +82,11 @@ export class AuthService {
       errorMessage = error.error.message;
     } else {
       // Server-side error
-      errorMessage = error.error?.error || error.message;
+      if (error.status === 401) {
+        errorMessage = 'Invalid email or password';
+      } else {
+        errorMessage = error.error?.error || error.message;
+      }
     }
     return throwError(() => new Error(errorMessage));
   }

@@ -1,0 +1,123 @@
+<div class="auth-container">
+  <div class="auth-card" style="max-width: 700px;">
+    <h2 *ngIf="!previewMode">Create New Listing</h2>
+    <form *ngIf="!previewMode" [formGroup]="createListingForm" (ngSubmit)="togglePreview()">
+      <!-- Property Type -->
+      <div class="form-group">
+        <label for="apartmentType">Property Type</label>
+        <select id="apartmentType" formControlName="apartmentType" class="form-control">
+          <option value="">Select an option</option>
+          <option *ngFor="let type of propertyTypes" [value]="type.value">{{ type.label }}</option>
+        </select>
+        <div class="error" *ngIf="submitted && createListingForm.get('apartmentType')?.errors">
+          <div *ngIf="createListingForm.get('apartmentType')?.errors?.['required']">Please select an option</div>
+        </div>
+      </div>
+      <!-- Title of the property -->
+      <div class="form-group">
+        <label for="title">Title of the property</label>
+        <input id="title" type="text" formControlName="title" class="form-control" placeholder="Enter title" />
+        <div class="error" *ngIf="submitted && createListingForm.get('title')?.errors">
+          <div *ngIf="createListingForm.get('title')?.errors?.['required']">Title is required</div>
+          <div *ngIf="createListingForm.get('title')?.errors?.['minlength']">Title must be at least 10 characters</div>
+        </div>
+      </div>
+      <!-- Number of Beds -->
+      <div class="form-group">
+        <label for="beds">Number of Beds</label>
+        <input id="beds" type="number" formControlName="beds" class="form-control" min="1" placeholder="Enter number of beds">
+        <div class="error" *ngIf="submitted && createListingForm.get('beds')?.errors">
+          <div *ngIf="createListingForm.get('beds')?.errors?.['required']">Number of beds is required</div>
+          <div *ngIf="createListingForm.get('beds')?.errors?.['min']">Must be at least 1</div>
+        </div>
+      </div>
+      <!-- Address -->
+      <div class="form-group">
+        <label for="address">Address</label>
+        <input id="address" type="text" formControlName="address" class="form-control" placeholder="Enter address">
+        <div class="error" *ngIf="submitted && createListingForm.get('address')?.errors">
+          <div *ngIf="createListingForm.get('address')?.errors?.['required']">Address is required</div>
+        </div>
+      </div>
+      <!-- Rent -->
+      <div class="form-group">
+        <label for="price">Rent (per month)</label>
+        <input id="price" type="number" formControlName="price" class="form-control" placeholder="Enter rent">
+        <div class="error" *ngIf="submitted && createListingForm.get('price')?.errors">
+          <div *ngIf="createListingForm.get('price')?.errors?.['required']">Rent is required</div>
+          <div *ngIf="createListingForm.get('price')?.errors?.['min'] || createListingForm.get('price')?.errors?.['pattern']">Rent must be greater than 0</div>
+        </div>
+      </div>
+      <!-- Description -->
+      <div class="form-group">
+        <label for="description">Description</label>
+        <textarea id="description" formControlName="description" class="form-control" rows="4" placeholder="Enter a detailed description"></textarea>
+        <div class="error" *ngIf="submitted && createListingForm.get('description')?.errors">
+          <div *ngIf="createListingForm.get('description')?.errors?.['required']">Description is required</div>
+          <div *ngIf="createListingForm.get('description')?.errors?.['minlength']">Description must be at least 10 characters</div>
+        </div>
+      </div>
+      <!-- Amenities -->
+      <div class="form-group">
+        <label>Amenities included</label>
+        <div class="amenities-grid">
+          <label *ngFor="let amenity of amenities; let i = index">
+            <input type="checkbox" [formControl]="amenitiesArray.at(i)"> {{ amenity.label }}
+          </label>
+        </div>
+      </div>
+      <!-- Photo Upload -->
+      <div class="form-group">
+        <label for="photos">Upload Photos</label>
+        <input id="photos" type="file" (change)="onFileSelected($event)" multiple accept="image/*" class="form-control" />
+        <div class="photo-preview-grid" *ngIf="photoUrls.length">
+          <div class="photo-preview" *ngFor="let photo of photoUrls">
+            <img [src]="photo.url" [alt]="photo.name" />
+            <div class="photo-name">{{ photo.name }}</div>
+          </div>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="submit-btn">Preview</button>
+        <button type="button" class="submit-btn" style="background:#888;margin-left:10px;" (click)="router.navigate(['/'])">Cancel</button>
+      </div>
+    </form>
+
+    <!-- Preview Mode -->
+    <div *ngIf="previewMode" class="preview-section">
+      <div class="preview-header">Preview and Submit</div>
+      <div class="preview-grid">
+        <div class="preview-row">
+          <div class="preview-box"><b>Title</b><br>{{ createListingForm.value.title }}</div>
+          <div class="preview-box"><b>Property Type</b><br>{{ createListingForm.value.apartmentType | titlecase }}</div>
+          <div class="preview-box"><b>Number of Beds</b><br>{{ createListingForm.value.beds }}</div>
+        </div>
+        <div class="preview-row">
+          <div class="preview-box" style="flex:2"><b>Address</b><br>{{ createListingForm.value.address }}</div>
+          <div class="preview-box"><b>Rent</b><br>₹{{ createListingForm.value.price }}/month</div>
+        </div>
+        <div class="preview-row">
+          <div class="preview-box" style="flex:2"><b>Description</b><br>{{ createListingForm.value.description }}</div>
+          <div class="preview-box"><b>Amenities</b><br>
+            <div *ngFor="let amenity of getSelectedAmenities()">{{ amenity }}</div>
+          </div>
+        </div>
+        <div class="preview-row">
+          <div class="preview-box" style="flex:1 1 100%">
+            <b>Photos</b>
+            <div class="photo-preview-grid">
+              <div class="photo-preview" *ngFor="let photo of photoUrls">
+                <img [src]="photo.url" [alt]="photo.name" />
+                <div class="photo-name">{{ photo.name }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="form-actions" style="justify-content: space-between;">
+        <button type="button" class="submit-btn" style="background:#888;" (click)="togglePreview()">Back</button>
+        <button type="button" class="submit-btn" (click)="onSubmit()">Submit</button>
+      </div>
+    </div>
+  </div>
+</div> 

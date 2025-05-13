@@ -1,0 +1,75 @@
+<div class="container">
+  <div class="profile-section">
+    <h2>My Profile</h2>
+    
+    <form [formGroup]="profileForm" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label for="fullName">Full Name</label>
+        <input 
+          id="fullName" 
+          type="text" 
+          formControlName="fullName" 
+          class="form-control"
+        >
+        <div class="error" *ngIf="submitted && profileForm.get('fullName')?.errors">
+          <div *ngIf="profileForm.get('fullName')?.errors?.['required']">
+            Full name is required
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input 
+          id="email" 
+          type="email" 
+          formControlName="email" 
+          class="form-control"
+          [readonly]="true"
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="phone">Phone Number</label>
+        <input 
+          id="phone" 
+          type="tel" 
+          formControlName="phone" 
+          class="form-control"
+        >
+        <div class="error" *ngIf="submitted && profileForm.get('phone')?.errors">
+          <div *ngIf="profileForm.get('phone')?.errors?.['pattern']">
+            Please enter a valid phone number
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Role</label>
+        <div class="role-display">
+          {{ profileForm.get('role')?.value || 'User' }}
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="save-btn">Save Changes</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="listings-section" *ngIf="userListings.length > 0">
+    <h3>My Listings</h3>
+    <div class="listings-grid">
+      <div class="listing-card" *ngFor="let listing of userListings">
+        <div class="image-container">
+          <img [src]="listing.imageUrl" [alt]="listing.title">
+        </div>
+        <div class="listing-details">
+          <h4>{{ listing.title }}</h4>
+          <p class="price">INR {{ listing.price | number:'1.0-0' }}/month</p>
+          <p class="location">{{ listing.location }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 
