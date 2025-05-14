@@ -4,67 +4,72 @@ import { BehaviorSubject, Observable, throwError } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 import { User } from '../models/user.model';
 
+// Constants
+const STORAGE_KEY = 'currentUser';
+const API_URL = 'api';
+
+// Types
+interface LoginRequest {
+  email: string;
+  password: string;
+}
+
+interface RegisterRequest {
+  fullName: string;
+  email: string;
+  password: string;
+  phone?: string;
+  role: string;
+}
+
+interface AuthResponse {
+  body: User;
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = 'api';  // Changed to work with in-memory web API
-  private currentUserSubject = new BehaviorSubject<User | null>(null);
-  public currentUser$ = this.currentUserSubject.asObservable();
+  private readonly currentUserSubject = new BehaviorSubject<User | null>(null);
+  public readonly currentUser$ = this.currentUserSubject.asObservable();
 
-  constructor(private http: HttpClient) {
-    const storedUser = localStorage.getItem('currentUser');
-    if (storedUser) {
-      try {
+  constructor(private readonly http: HttpClient) {
+    this.initializeUserFromStorage();
+  }
+
+  private initializeUserFromStorage(): void {
+    try {
+      const storedUser = localStorage.getItem(STORAGE_KEY);
+      if (storedUser) {
         const user = JSON.parse(storedUser);
         this.currentUserSubject.next(user);
-      } catch (error) {
-        // If there's an error parsing the stored user, clear it
-        localStorage.removeItem('currentUser');
-        this.currentUserSubject.next(null);
       }
+    } catch (error) {
+      this.clearUserData();
     }
   }
 
   login(email: string, password: string): Observable<User> {
-    return this.http.post<User>(`${this.apiUrl}/auth/login`, { email, password })
+    const loginData: LoginRequest = { email, password };
+    return this.http.post<User>(`${API_URL}/auth/login`, loginData)
       .pipe(
-        map(response => {
-          if (!response || !response.id) {
-            throw new Error('Invalid login credentials');
-          }
-          return response;
-        }),
-        tap(user => {
-          console.log('User to store:', user);
-          localStorage.setItem('currentUser', JSON.stringify(user));
-          this.currentUserSubject.next(user);
-        }),
+        map(this.validateUserResponse),
+        tap(this.storeUserData),
         catchError(this.handleError)
       );
   }
 
-  register(userData: {
-    fullName: string;
-    email: string;
-    password: string;
-    phone?: string;
-    role: string;
-  }): Observable<User> {
-    return this.http.post<any>(`${this.apiUrl}/auth/register`, userData)
+  register(userData: RegisterRequest): Observable<User> {
+    return this.http.post<AuthResponse>(`${API_URL}/auth/register`, userData)
       .pipe(
         map(response => response.body),
-        tap(user => {
-          localStorage.setItem('currentUser', JSON.stringify(user));
-          this.currentUserSubject.next(user);
-        }),
+        tap(this.storeUserData),
         catchError(this.handleError)
       );
   }
 
   logout(): void {
-    localStorage.removeItem('currentUser');
-    this.currentUserSubject.next(null);
+    this.clearUserData();
   }
 
   isAuthenticated(): boolean {
@@ -75,19 +80,46 @@ export class AuthService {
     return this.currentUserSubject.value;
   }
 
-  private handleError(error: HttpErrorResponse) {
+  private validateUserResponse = (response: User): User => {
+    if (!response?.id) {
+      throw new Error('Invalid login credentials');
+    }
+    return response;
+  };
+
+  private storeUserData = (user: User): void => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
+      this.currentUserSubject.next(user);
+    } catch (error) {
+      console.error('Error storing user data:', error);
+      this.clearUserData();
+    }
+  };
+
+  private clearUserData = (): void => {
+    localStorage.removeItem(STORAGE_KEY);
+    this.currentUserSubject.next(null);
+  };
+
+  private handleError = (error: HttpErrorResponse) => {
     let errorMessage = 'An error occurred';
+    
     if (error.error instanceof ErrorEvent) {
-      // Client-side error
       errorMessage = error.error.message;
     } else {
-      // Server-side error
-      if (error.status === 401) {
-        errorMessage = 'Invalid email or password';
-      } else {
-        errorMessage = error.error?.error || error.message;
+      switch (error.status) {
+        case 401:
+          errorMessage = 'Invalid email or password';
+          break;
+        case 500:
+          errorMessage = 'Server error occurred';
+          break;
+        default:
+          errorMessage = error.error?.error || error.message;
       }
     }
+    
     return throwError(() => new Error(errorMessage));
-  }
+  };
 } 
